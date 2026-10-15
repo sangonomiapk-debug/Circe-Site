@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Circe Mayer 💋️</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#2b0029;
+    color:white;
+    font-style:italic;
+}
+
+
+
+
+
+
+/* ====================== */
+/* Inagemagem Banner 🖼️
+/* ====================== */
+
+#topo{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#2b0029;
+}
+
+#topo img{
+    width:100%;
+    display:block;
+}
+
+
+
+
+
+/* ====================== */
+/* Exibir Fotos 📷
+/* ====================== */
+
+#galeria{
+    padding:15px;
+}
+
+.foto{
+    width:100%;
+    border-radius:18px;
+    margin-bottom:18px;
+    cursor:pointer;
+    transition:.25s;
+    display:block;
+}
+
+.foto:hover{
+    transform:scale(1.01);
+}
+
+
+
+
+
+/* ====================== */
+/* Exibir Tela Cheia 📤
+/* ====================== */
+
+#viewer{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.96);
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+
+
+
+
+/* ====================== */
+/* Botaoão de Fixar 📌
+/* ====================== */
+
+#viewer img{
+    max-width:100%;
+    max-height:100%;
+}
+
+#pinBtn{position:fixed;top:20px;right:20px;font-size:28px;background:#fff;border:none;border-radius:50%;padding:8px;display:none;z-index:1000;cursor:pointer}
+
+
+
+
+
+/* ====================== */
+/* Abas de videos / Fotos
+/* ====================== */
+
+#abas{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding:12px;
+    background:#2b0029;
+    position:sticky;
+    top:0;
+    z-index:99;
+}
+
+.aba{
+    background:#4a0047;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:25px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.aba.ativa{
+    background:#8f3cff;
+}
+
+
+
+
+                          /* •••••••••••••••••*/
+                          /*    Fim do CSS
+                          /* •••••••••••••••••*/
+</style>
+
+</head>
+
+<body>
+
+
+
+
+
+<div id="topo">
+<img src="https://raw.githubusercontent.com/support-adm-debug/Fundo/refs/heads/main/%F0%93%82%80%20Circe-Banner%20%E2%99%A5%EF%B8%8F.png">
+</div>
+
+<div id="galeria"></div>
+
+<div id="abas">
+    <button class="aba ativa" onclick="mostrarFotos()">📷 Fotos</button>
+    <button class="aba" onclick="mostrarVideos()">🎥 Vídeos</button>
+</div>
+
+<button id="pinBtn"style="
+background: transparent;
+opacity: 100%;
+color: silver;
+text-shadow:
+  0 0 2px #800080,
+  0 0 5px #800080,
+  0 0 10px #800080;
+">༆</button><div id="viewer"><img id="imgGrande"></div>
+
+
+
+
+
+
+<script>
+                          /* •••••••••••••••••*/
+                          /* Configurações 👻
+                          /* •••••••••••••••••*/
+
+
+
+
+
+// ====================
+// Menu de Fotos 📷
+// ====================
+
+
+
+// const pastaGithub="https://raw.githubusercontent.com/sangonomiapk-debug/Circe_fotos/main/";
+
+
+const pastaGithub="https://raw.githubusercontent.com/sangonomiapk-debug/Circe-Mayer/main/";
+const apiGithub="https://api.github.com/repos/sangonomiapk-debug/Circe-Mayer/contents/";
+const galeria=document.getElementById("galeria");
+
+
+let atual=0;
+let pins=JSON.parse(localStorage.getItem("pins")||"[]");
+
+
+
+async function render(){
+
+    galeria.innerHTML="";
+
+    try{
+
+        const resposta = await fetch(apiGithub);
+        const arquivos = await resposta.json();
+
+        let ordem = arquivos
+            .filter(arquivo =>
+                arquivo.type === "file" &&
+                /^Circe_Mayer \d+\.jpg$/i.test(arquivo.name)
+            )
+            .map(arquivo => {
+                const numero = arquivo.name.match(/\d+/)[0];
+                return Number(numero);
+            })
+            .sort((a,b)=>b-a);
+
+        ordem.sort((a,b)=>{
+
+            let pa=pins.includes(a);
+            let pb=pins.includes(b);
+
+            if(pa!=pb)
+                return pb-pa;
+
+            return b-a;
+        });
+
+        ordem.forEach(i=>{
+
+            let img=document.createElement("img");
+
+            img.src=pastaGithub+`Circe_Mayer ${i}.jpg`;
+
+            img.className="foto";
+
+            img.onclick=()=>{
+
+                atual=i;
+
+                imgGrande.src=img.src;
+
+                viewer.style.display="flex";
+
+                pinBtn.style.display="block";
+
+            };
+
+            galeria.appendChild(img);
+
+        });
+
+    }catch(erro){
+
+        console.error("Erro ao carregar fotos:",erro);
+
+        galeria.innerHTML=
+            "<p style='text-align:center;padding:20px;'>Não foi possível carregar as fotos.</p>";
+
+    }
+}
+ 
+ 
+
+
+
+
+
+render();
+viewer.onclick=()=>{viewer.style.display="none";pinBtn.style.display="none";}
+pinBtn.onclick=(e)=>{
+ e.stopPropagation();
+ if(!pins.includes(atual)) pins.push(atual); else pins=pins.filter(x=>x!=atual);
+ localStorage.setItem("pins",JSON.stringify(pins));
+ render();
+};
+
+
+
+
+
+
+
+// ====================
+// Menu de Videos  🎥
+// ====================
+
+const videos = [
+    
+    
+    
+    "https://www.dropbox.com/scl/fi/x1kthlr4e67n945icp6ui/Videos-Circe-M-83.mp4?rlkey=n3kdnjsqm6ewv8io98u2rnacg&e=1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/eck2t6yzhughw5d2tpurn/V-deos-Circe-M-82.mp4?rlkey=og70vu8uhecjy9c1tw3i1p76b&e=1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/capznar5cgs1vfbx3cn34/V-deos-Circe-M-81.mp4?rlkey=myngxw3jpyd3n1n965xw1mbis&e=1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/nsuyw5zvttjm2o79urgg4/V-deos-Circe-M-80.mp4?rlkey=53x9bpdumz12z35xzyyzey6ha&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/1i1lu6j978zlk8s8r57sk/V-deos-Circe-M-79.mp4?rlkey=61zxp4q9kum16iajoi0gsap1x&e=1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/c0hf1ydeayllo1k9b6df2/V-deos-Circe-M-78.mp4?rlkey=nquekxo9vlskn2ae56a6zafr4&e=1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/fxo61iy5pkthyup5b8e47/V-deos-Circe-M-77.mp4?rlkey=vu07u1u13vjdxtvkml2m9bbo7&st=eolcmvea&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/72y4toi5o43bqef05opbp/V-deos-Circe-M-76.mp4?rlkey=j88l83bb7o343g7xngaqinnkt&st=ju4uyzah&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/m89o7uvevb05szsc6i2ed/V-deos-Circe-M-75.mp4?rlkey=20chqq8mkdqy7gicmie7bp2sy&st=ixtrgvkm&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/lkdszs971m44jl7gri9tg/V-deos-Circe-M-74.mp4?rlkey=2a46yfhm4267ocn9l3sh38w1o&st=9z4xew1m&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/sci6mdxatn3103bm50wqb/V-deos-Circe-M-73.mp4?rlkey=f9bgmpy6347hmafonc2x0adzc&st=dxarl0o6&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/tifqm5vpr74bgt4cs9z9m/V-deos-Circe-M-72.mp4?rlkey=w223qolcee5u3s3vktnh8kmc5&st=kjez1pgj&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/x9xaa6bqpz2pnts5dw3xt/V-deos-Circe-M-71.mp4?rlkey=18dzt8l3vgrib300gx1kckbsz&st=zdynr0ij&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/vrg2u9v9ovtdxbki3cgzt/V-deos-Circe-M-70.mp4?rlkey=la858ulxwzxiglbtvfxct0eao&st=55h39pug&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/ft6mti0vq6fx5ugq9ee8d/V-deos-Circe-M-69.mp4?rlkey=6bppc00850hivgqd5lmwa4z4i&st=kxajx5ln&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/x0ht7erwh4iyi0rojevff/V-deos-Circe-M-68.mp4?rlkey=uqt9x4y31p5at9bcenij8qt7x&st=gk1h8jj5&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/z3usy9p0xrc3mk82ysdo1/V-deos-Circe-M-67.mp4?rlkey=elil4nbaq4eyfgsti5fs46le5&st=cb1cr91p&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/q61rcjtowvv8etyzoq888/V-deos-Circe-M-66.mp4?rlkey=hszaa2ic2390owkibcx466r4v&st=5vv34fcm&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/th12wssfx00f10efyzyqg/V-deos-Circe-M-65.mp4?rlkey=mlv5c62y618hwjlng7kbdiy6f&st=7xiaom2y&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/pwtxdm08shhmhuhjzg2rr/V-deos-Circe-M-64.mp4?rlkey=ghjr6ztpk0y86e27k1cpn06lu&st=azl4dhse&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/paaokgbh6dgxzvy8lwai1/V-deos-Circe-M-63.mp4?rlkey=o4k0gn8vmkj9ow7udbzbf3y9s&st=pge0zp6z&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/i4v4917p1i00aa5xl34pd/V-deos-Circe-M-62.mp4?rlkey=wgsownpyxojx2u7wm93j2s359&st=rp39zwhz&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/h19tzafgz5uimtoi65ziu/V-deos-Circe-M-61.mp4?rlkey=6dvxw7d08eu4oj143o6irf3xj&st=b0x7go4r&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/axnd0t9ndiwvgogoz0ow4/V-deos-Circe-M-60.mp4?rlkey=e11jlotmeo4s4xcelhed53q2r&st=d9styi04&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/1rnqnumh8esd6bpgmea27/V-deos-Circe-M-59.mp4?rlkey=7qalvrz5lmhat8w02z2r6hetv&st=4dojqf25&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/dyouy4evyyiysdslr7cte/V-deos-Circe-M-58.mp4?rlkey=ajjq3xc02ofyyz8tus9sbyxs1&st=hsn7sjm3&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/cstwv73xqkmt4ppq67fv7/V-deos-Circe-M-57.mp4?rlkey=v6ygndvzxqaztbpabr0pyxpil&st=9n1fvkby&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/0bl1zy1lwvm3s0k14ajum/V-deos-Circe-M-56.mp4?rlkey=205xapp2swia9jq16r00j27vp&st=u3ir6006&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/jsk1t67um5gdwzd9ygjub/V-deos-Circe-M-55.mp4?rlkey=wla3t5obrqdgsyzum3znlqhtx&st=kt30mn49&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/pswirys4v6zyq72nlejs3/V-deos-Circe-M-54.mp4?rlkey=z76dgip4f9htcp6pyoti0tby8&st=qaj94x2v&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/qwf0adn72pulrkypynm4c/V-deos-Circe-M-53.mp4?rlkey=k3ei5jvcpmpxul924kprsujln&st=3xbwowch&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/44ymurho318iqgy8d3vn1/V-deos-Circe-M-52.mp4?rlkey=n4fgxxg97baa049ehdky0tazt&st=06u3ncg3&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/0isridngqwep5iikgojhe/V-deos-Circe-M-51.mp4?rlkey=3saz9iaozpkqd769s5rq1l6gd&st=llbm1asr&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/bzzdu4tg6o7n3j73paq2l/V-deos-Circe-M-50.mp4?rlkey=41vxhsbf6yzyf78zmmult5a6t&st=t1twnwnk&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/xy5xpp9x5brb3mvlb20qj/V-deos-Circe-M-49.mp4?rlkey=3jxcf8v03o48u20mqmhftt4l7&st=194puhrp&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/rz8ff0vowr8fp1ulksthm/V-deos-Circe-M-48.mp4?rlkey=1atlgmiy4us4e3ujjxr9b0mon&st=cv64k86h&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/5lfythbg8iqnik30mzyjq/V-deos-Circe-M-47.mp4?rlkey=vnxzsf40vunu65uy2nablqrq4&st=ydb8fcde&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/p653c04zkaaipu1qchy0e/V-deos-Circe-M-46.mp4?rlkey=rzv18kh7o4oiwjqk5qwszz4yw&st=kka0uno1&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/kv3znv6tqyeaslq3872f1/V-deos-Circe-M-45.mp4?rlkey=dybb7vcfdb4amyw0rq45a62rj&st=1kxee0st&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/eay0zzy8r0t7bzm4cuuu3/V-deos-Circe-M-44.mp4?rlkey=6gx10l9dpgbj0netkon5a45e7&st=cu987eje&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/ar10ei4hlpqhjw7vrmryp/V-deos-Circe-M-43.mp4?rlkey=qw5up385eh3owoooy0qdxr5d4&st=5u5snmir&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/kavznwb3ohw2bfn56bgkw/V-deos-Circe-M-42.mp4?rlkey=u63lp7i75k5mcg1mt1y50ok7k&st=nuextw5o&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/ndd07qnq36qzqdy3ywic5/V-deos-Circe-M-41.mp4?rlkey=oohimeknk95ia55ndq4dwkuob&st=ysngsr64&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/9vvx9etb84qnb85ywawi9/V-deos-Circe-M-40.mp4?rlkey=2yiwq16g32tytgpjmt27m72va&st=5h6j9wt8&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/4d8vhg9ck6daupsme97wh/V-deos-Circe-M-39.mp4?rlkey=gtkvoygfq5gm6200btrijy981&st=vo0u99tn&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/tcs4e6nblijycfjm8twmf/V-deos-Circe-M-38.mp4?rlkey=3dgufr1qgrxx85g3g2bx6ibl3&st=lfss8aix&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/j7choiymqyoj1cdlrvlbm/V-deos-Circe-M-37.mp4?rlkey=dmqj5tg7vdikmgrqrjf9gdy0l&st=nphgzye7&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/pr8kj11ztnus8o3g10ieb/V-deos-Circe-M-36.mp4?rlkey=44b3p9mpzjwby2g5ags8ck5fh&st=45cqb4rt&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/ftr7mq9c4o7csk4adx259/V-deos-Circe-M-35.mp4?rlkey=5xl6k9r1rmlhhcpv464eyl0mm&st=3zwciop4&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/9oirqej10k99ixmhdqmc1/V-deos-Circe-M-34.mp4?rlkey=ktsu94mz8s2t7632lvfc06z7x&st=wb5xa4ws&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/z7gkc4yq58yjcjrbizfow/V-deos-Circe-M-33.mp4?rlkey=yk2t1fmhbfzbjpu9n92vrz6ta&st=puzgwawh&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/gsbfkp0e88f0i01aard3c/V-deos-Circe-M-32.mp4?rlkey=y63yduc6g11924srizgpbzjg5&st=6r0m4u7c&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/phjx5a96fcagrdpkpwvax/V-deos-Circe-M-31.mp4?rlkey=vnvelk9jp2olpefftxh91ef5u&st=gl3x2aes&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/c6813jjcpu08q802lievs/V-deos-Circe-M-30.mp4?rlkey=ja00qb5cpuqef5kyr9p868lzj&st=1nekxs1u&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/6h4zv2iytw5d4vevt3753/V-deos-Circe-M-29.mp4?rlkey=l714nnz9sa8p99xhafpu5nzhm&st=lr79ku46&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/jtflqr2i6ng0dkr14ibby/V-deos-Circe-M-28.mp4?rlkey=xo7ecu052uat942ibqs4wyc6u&st=5syilij7&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/ef21wa4s077tgh6048azn/V-deos-Circe-M-27.mp4?rlkey=rtybj8tl2qx9gpwa9z5t7b1k4&st=euef2on5&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/31bp3x7gdat9h7dydnpyq/V-deos-Circe-M-26.mp4?rlkey=r32dosip73zmakw617b8esvk2&st=005tuqop&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/4ix9tr6jpzyuksox459el/V-deos-Circe-M-25.mp4?rlkey=dckvnhtg0xehd2pvmftj7ylq9&st=u6pzpmr9&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/1h83lm6bmtjaiiuwg92kw/V-deos-Circe-M-24.mp4?rlkey=jq0ev6g4cb0db5iivizcexnl4&st=gos2q3en&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/8cbrh2fu6i6t5lgpjfmyl/V-deos-Circe-M-23.mp4?rlkey=vvvctjc5prrti4fo4hiztzftt&st=z8pk0go5&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/3cd9ngfebfb3gamx9omas/V-deos-Circe-M-22.mp4?rlkey=21vwpehdj7cw3g7j2ewfpq3bu&st=nuscu0k4&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/56jlw2882413wa5bh1cjq/V-deos-Circe-M-21.mp4?rlkey=h3rktykd5bzqbxbsfq9pzwdf1&st=lf35bm8f&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/6qm04glrwfqapnnioum67/V-deos-Circe-M-20.mp4?rlkey=gcrown40kcr5sdxlqg88ry9ge&st=t6g2bfwp&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/kc08omgzg4wey9jlowlt1/V-deos-Circe-M-19.mp4?rlkey=05ifu4ymeznz9wgk116emly6q&st=qh0ltv1t&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/x8mtgslxuicqix28in743/V-deos-Circe-M-18.mp4?rlkey=vzb692omh3r9zo6ucgedvcczs&st=65vp3roa&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/53sek6alv2iwyeuf8apms/V-deos-Circe-M-17.mp4?rlkey=8w5oumkglsyy8i9k36gyzhjys&st=xup9kl4k&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/8n5erb5nq3lqzij1xnn90/V-deos-Circe-M-16.mp4?rlkey=sczgmld7o6ty7i74e6orz7u25&st=fuk750jh&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/vp43o4lk3ijalyfv97jx0/V-deos-Circe-M-15.mp4?rlkey=djrcq7w006debx5fiypo4j42y&st=1dvj3a5t&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/1gs645g60030y62igq8nj/V-deos-Circe-M-14.mp4?rlkey=upo89c32y40137n97xoyisrwo&st=s6hg3xv9&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/19g4z8j26mgrdvntzn07w/V-deos-Circe-M-13.mp4?rlkey=22jeivpilb67qoowwugotj8ww&st=v9cf8jid&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/0fvrsxxpj0xn98a4kgtsg/V-deos-Circe-M-12.mp4?rlkey=mlkwxwicg9wgknaez17ienzyn&st=9q88achg&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/uam3wqe5un5zn196qs9f9/V-deos-Circe-M-11.mp4?rlkey=jmbo09jhlsyemezepen45f3gv&st=oajcebvi&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/zlu8jd2iohgu6d3ikjxzh/V-deos-Circe-M-10.mp4?rlkey=bm11tgn677l3gu3vbi8rrxun9&st=num6qirz&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/5zknkgv2uqsw1q0wcoolg/V-deos-Circe-M-9.mp4?rlkey=arxf37bczv42jq42f4sd30uwi&st=u43r0ka2&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/iffmp37m9e4spkzj62c34/V-deos-Circe-M-8.mp4?rlkey=34yehz55vdg65yv0q33pvpdea&st=qiehgp49&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/65iryhsfy3dj81v91c13e/V-deos-Circe-M-7.mp4?rlkey=iito9ejwck4vl4pfy8nazwwhp&st=x5i4dbbj&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/qwkjkz4yme89fasfnpdyp/V-deos-Circe-M-6.mp4?rlkey=wusqjsflarumcb2402te13v2g&st=7f7fctyc&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/od4lay5f1mgytmqroex1n/V-deos-Circe-M-5.mp4?rlkey=t4jqjkfnm2g29v26xkm27s5ys&st=05lkv1dk&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/6kjbfpz6gfn28deq3x9m3/V-deos-Circe-M-4.mp4?rlkey=fvnihfcm1pttzpfc8l11kila6&st=n2uejyob&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/xrxcwe4545b6ueu347iz2/V-deos-Circe-M-3.mp4?rlkey=40hg2uwuj8fslcdtkbar4rx1j&st=c2ohkihv&raw=1",
+    
+    "https://www.dropbox.com/scl/fi/v15pp6tmeg12o2aqk29bj/V-deos-Circe-M-2.mp4?rlkey=nm6a9i0arxg79fddz3hqb9gw8&st=zud7zz6g&raw=1",
+    
+    'https://www.dropbox.com/scl/fi/90ka5hl5wdoyht6o76z8m/V-deos-Circe-M-1.mp4?rlkey=208hy4m6923rst7vo5to7o2a0&st=ssm37fr2&raw=1',
+];
+
+function mostrarFotos(){
+    document.querySelectorAll(".aba")[0].classList.add("ativa");
+    document.querySelectorAll(".aba")[1].classList.remove("ativa");
+
+    render();
+}
+
+function mostrarVideos(){
+
+    document.querySelectorAll(".aba")[1].classList.add("ativa");
+    document.querySelectorAll(".aba")[0].classList.remove("ativa");
+
+    galeria.innerHTML="";
+
+    videos.forEach(link=>{
+
+        let video=document.createElement("video");
+
+        video.src=link;
+        video.controls=true;
+        video.preload="metadata";
+        video.className="foto";
+
+        galeria.appendChild(video);
+
+    });
+
+}
+
+
+
+
+
+
+</script></body></html>
+
+
+
